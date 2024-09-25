@@ -1,0 +1,15 @@
+logging:
+  level:
+    org.hibernate.SQL: "DEBUG"
+
+spring:
+  application:
+    name: "projectmanager"
+
+  datasource:
+    driver-class-name: "org.sqlite.JDBC"
+    url: "jdbc:sqlite:db.sqlite3"
+
+  jpa:
+    hibernate:
+      ddl-auto: "update"
