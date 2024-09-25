@@ -26,6 +26,7 @@ repositories {
 dependencies {
 
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
 	compileOnly("org.projectlombok:lombok")
@@ -34,6 +35,11 @@ dependencies {
 
 	runtimeOnly("org.xerial:sqlite-jdbc")
 	runtimeOnly("org.hibernate.orm:hibernate-community-dialects")
+
+	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
 	annotationProcessor("org.projectlombok:lombok")
 
