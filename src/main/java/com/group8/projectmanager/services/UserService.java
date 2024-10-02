@@ -43,6 +43,13 @@ public class UserService {
 
     public void newUser(UserDto dto) {
 
+        if (repository.existsByUsername(dto.username())) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Username already exists. Please try a different one."
+            );
+        }
+
         var hashedPassword = passwordEncoder.encode(dto.password());
 
         var user = User.builder()
