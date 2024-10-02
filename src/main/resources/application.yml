@@ -14,8 +14,11 @@ spring:
     hibernate:
       ddl-auto: "update"
 
+
 jwts:
-  access-token-lifetime: 1800000     # 30 minutes
-  refresh-token-lifetime: 2592000000 # 30 days
+  algorithm: "HS256"
+
+  access-token-lifetime: 1800     # 30 minutes
+  refresh-token-lifetime: 2592000 # 30 days
 
   secret-key: "${JWT_SECRET}"
