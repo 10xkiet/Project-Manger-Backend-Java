@@ -14,6 +14,7 @@ spring:
     hibernate:
       ddl-auto: "update"
 
+    open-in-view: false
 
 jwts:
   algorithm: "HS256"
