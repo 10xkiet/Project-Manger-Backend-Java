@@ -1,11 +1,11 @@
 package com.group8.projectmanager.configs;
 
-import com.group8.projectmanager.converters.JwtToAuthernticationConverter;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,7 +21,11 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtToAuthernticationConverter jwtConverter;
+
+    private User loadByUserName(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,9 +38,15 @@ public class SecurityConfig {
             })
 
             .oauth2ResourceServer(oauth2 -> {
-                oauth2.jwt(jwt -> {
-                    jwt.jwtAuthenticationConverter(jwtConverter);
-                });
+                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(source -> {
+
+                    var username = source.getSubject();
+                    var user = loadByUserName(username);
+
+                    return new UsernamePasswordAuthenticationToken(
+                        user, source, user.getAuthorities()
+                    );
+                }));
             })
 
             .build();
@@ -51,10 +61,5 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder);
 
         return authProvider;
-    }
-
-    private User loadByUserName(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }
