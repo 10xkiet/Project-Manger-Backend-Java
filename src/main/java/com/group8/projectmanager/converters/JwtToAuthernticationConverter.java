@@ -1,4 +1,4 @@
-package com.group8.projectmanager.converter;
+package com.group8.projectmanager.converters;
 
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;

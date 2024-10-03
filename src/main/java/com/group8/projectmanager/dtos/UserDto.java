@@ -10,5 +10,4 @@ public record UserDto(
     @NotEmpty
     String password
 
-) {
-}
+) {}
