@@ -26,7 +26,7 @@ public class JwtsService {
 
     @Value("${jwts.access-token-lifetime}")
     private long accessTokenLifetime;
-    
+
     @Value("${jwts.refresh-token-lifetime}")
     private long refreshTokenLifetime;
 
