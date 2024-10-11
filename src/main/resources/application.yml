@@ -19,7 +19,8 @@ spring:
 jwts:
   algorithm: "HS256"
 
+  public-key: "classpath:certs/public.pem"
+  private-key: "classpath:certs/private.pem"
+
   access-token-lifetime: 1800     # 30 minutes
   refresh-token-lifetime: 2592000 # 30 days
-
-  secret-key: "${JWT_SECRET}"

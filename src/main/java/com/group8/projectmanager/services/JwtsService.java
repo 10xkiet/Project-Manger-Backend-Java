@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,18 +20,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtsService {
 
-    @Value("${jwts.algorithm}")
-    private String algorithm;
-
-    @Value("${jwts.access-token-lifetime}")
-    private long accessTokenLifetime;
-
-    @Value("${jwts.refresh-token-lifetime}")
-    private long refreshTokenLifetime;
-
     private final JwtEncoder jwtEncoder;
     private final UserService userService;
     private final DaoAuthenticationProvider authenticationProvider;
+
+    @Value("${jwts.access-token-lifetime}")
+    private long accessTokenLifetime;
+    
+    @Value("${jwts.refresh-token-lifetime}")
+    private long refreshTokenLifetime;
 
     private Jwt generateToken(User user, boolean isRefresh) {
 
@@ -47,10 +46,7 @@ public class JwtsService {
             .expiresAt(expiration)
             .build();
 
-        var parameter = JwtEncoderParameters.from(
-            JwsHeader.with(MacAlgorithm.valueOf(algorithm)).build(),
-            claimsSet
-        );
+        var parameter = JwtEncoderParameters.from(claimsSet);
 
         return jwtEncoder.encode(parameter);
     }
