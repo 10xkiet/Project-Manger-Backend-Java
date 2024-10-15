@@ -23,14 +23,18 @@ public class User implements UserDetails {
 
     @Column(unique = true, nullable = false)
     private String username;
+    
     @JoinColumn(name = "root_project_id",referencedColumnName = "id")
     @OneToOne(cascade = CascadeType.ALL)
     private Project rootProject;
+    
     @Column(nullable = false)
     private String password;
+    
     @Column(name="created-rojects")
     @OneToMany(mappedBy ="creator" ,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Project> userProjects= new ArrayList<>();
+    
     @Column(name="managed-projects")
     @OneToMany(mappedBy = "manager",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Project> managedProjects = new ArrayList<>();
