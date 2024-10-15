@@ -1,7 +1,7 @@
 package com.group8.projectmanager.services;
 
+import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.UserDto;
-import com.group8.projectmanager.models.Project;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository repository;
+    private final ProjectService projectService;
     private final PasswordEncoder passwordEncoder;
 
     public void createUser(UserDto dto) {
@@ -36,14 +37,16 @@ public class UserService {
             .username(dto.username())
             .password(hashedPassword)
             .build();
-        var rootProject= Project.builder().
-                projectName("Root project for user"+dto.username()).
-                creator(user).build();
-        user.setRootProject(rootProject);
-
-
 
         repository.save(user);
+
+        projectService.createProject(
+            user,
+            new ProjectCreateDto(
+                "Root project for " + user.getUsername(),
+                null
+            )
+        );
     }
 
     public Optional<User>

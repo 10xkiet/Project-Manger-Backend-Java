@@ -32,6 +32,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
 
     compileOnly("org.projectlombok:lombok")
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -40,7 +41,7 @@ dependencies {
 
     runtimeOnly("org.bouncycastle:bcprov-jdk18on:1.78.1")
 
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("org.modelmapper:modelmapper:3.2.1")
 
     annotationProcessor("org.projectlombok:lombok")
 

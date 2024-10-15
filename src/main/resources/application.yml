@@ -1,6 +1,6 @@
 logging:
   level:
-    org.hibernate.SQL: "DEBUG"
+    root: "INFO"
 
 spring:
   application:
