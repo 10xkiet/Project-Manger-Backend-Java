@@ -1,4 +1,10 @@
 package com.group8.projectmanager.dtos;
 
-public record ProjectDto() {
+import jakarta.validation.constraints.NotEmpty;
+
+public record ProjectDto(
+        @NotEmpty String projectName
+        ) {
+
+
 }

@@ -1,6 +1,7 @@
 package com.group8.projectmanager.services;
 
 import com.group8.projectmanager.dtos.UserDto;
+import com.group8.projectmanager.models.Project;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,12 @@ public class UserService {
             .username(dto.username())
             .password(hashedPassword)
             .build();
+        var rootProject= Project.builder().
+                projectName("Root project for user"+dto.username()).
+                creator(user).build();
+        user.setRootProject(rootProject);
+
+
 
         repository.save(user);
     }
