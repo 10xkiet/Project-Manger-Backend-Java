@@ -1,13 +1,15 @@
 package com.group8.projectmanager.controllers;
 
+import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
+import com.group8.projectmanager.models.Project;
+import com.group8.projectmanager.repositories.ProjectRepository;
 import com.group8.projectmanager.services.ProjectService;
+import com.group8.projectmanager.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,6 +19,8 @@ import java.util.List;
 public class SubProjectController {
 
     private final ProjectService projectService;
+    private final UserService userService ;
+    private final ProjectRepository projectRepository;
 
     @GetMapping
     public ProjectDetailDto retrieveProject(@PathVariable long id) {
@@ -27,5 +31,18 @@ public class SubProjectController {
     public List<ProjectSimpleDto> listSubProjects(@PathVariable long id) {
         return projectService.listSubProjects(id);
     }
+    @PatchMapping("new-subprojects")
+    public void newSubProjects(@PathVariable long id, @Valid @RequestBody ProjectCreateDto dto){
+         var user= userService.getUserByContext().orElseThrow();
+         var project=projectService.retrieveProjectAndCheck(id,user);
+         projectService.createProject(user, dto.getName(), dto.getDescription());
+        var subProject= Project.builder().
+                name(dto.getName()).
+                description(dto.getDescription()).
+                creator(user).build();
+        project.getSubProjects().add(subProject);
+        projectRepository.save(project);
+    }
+
 }
 
