@@ -34,7 +34,18 @@ public class SecurityConfig {
             .csrf(CsrfConfigurer::disable)
 
             .authorizeHttpRequests(authorize -> {
-                authorize.anyRequest().permitAll();
+
+                authorize
+                    .requestMatchers("/api/projects/**")
+                    .authenticated();
+
+                authorize
+                    .requestMatchers("/api/invitations/**")
+                    .authenticated();
+
+                authorize
+                    .anyRequest()
+                    .permitAll();
             })
 
             .oauth2ResourceServer(oauth2 -> {

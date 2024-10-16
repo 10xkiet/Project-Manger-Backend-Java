@@ -1,13 +1,14 @@
 package com.group8.projectmanager.services;
 
 import com.group8.projectmanager.dtos.UserDto;
-import com.group8.projectmanager.models.Project;
+import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +22,7 @@ public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    public void createUser(UserDto dto) {
+    public User createUser(UserDto dto) {
 
         if (repository.existsByUsername(dto.username())) {
             throw new ResponseStatusException(
@@ -36,14 +37,8 @@ public class UserService {
             .username(dto.username())
             .password(hashedPassword)
             .build();
-        var rootProject= Project.builder().
-                projectName("Root project for user"+dto.username()).
-                creator(user).build();
-        user.setRootProject(rootProject);
 
-
-
-        repository.save(user);
+        return repository.save(user);
     }
 
     public Optional<User>
@@ -60,5 +55,14 @@ public class UserService {
         } else {
             return Optional.empty();
         }
+    }
+
+    public Optional<User> getUserByContext() {
+
+        var authentication = SecurityContextHolder
+            .getContext()
+            .getAuthentication();
+
+        return this.getUserByAuthentication(authentication);
     }
 }

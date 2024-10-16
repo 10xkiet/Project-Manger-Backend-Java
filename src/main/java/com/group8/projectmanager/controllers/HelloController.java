@@ -2,8 +2,6 @@ package com.group8.projectmanager.controllers;
 
 import com.group8.projectmanager.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,9 +14,9 @@ public class HelloController {
     private final UserService userService;
 
     @GetMapping("/api/hello/")
-    public Map<String, String> greeting(@Nullable Authentication authentication) {
+    public Map<String, String> greeting() {
 
-        var user = userService.getUserByAuthentication(authentication);
+        var user = userService.getUserByContext();
 
         String message = "Hello, world!";
         if (user.isPresent()) {
