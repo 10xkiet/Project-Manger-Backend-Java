@@ -50,7 +50,7 @@ public class ProjectService {
         }
     }
 
-    private Project retrieveProjectAndCheck(long id) {
+    public Project retrieveProjectAndCheck(long id, User user) {
 
         Project target;
 
@@ -60,12 +60,16 @@ public class ProjectService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
-        var user = userService.getUserByContext().orElseThrow();
         if (!this.ableToView(target, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         return target;
+    }
+
+    public Project retrieveProjectAndCheck(long id) {
+        var user = userService.getUserByContext().orElseThrow();
+        return this.retrieveProjectAndCheck(id, user);
     }
 
     @Transactional(readOnly = true)

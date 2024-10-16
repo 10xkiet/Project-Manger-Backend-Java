@@ -2,6 +2,7 @@ package com.group8.projectmanager.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -23,6 +24,7 @@ public class Project {
 
     private String description;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private Timestamp createdOn;
 
