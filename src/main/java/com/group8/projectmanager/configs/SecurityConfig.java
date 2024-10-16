@@ -40,6 +40,10 @@ public class SecurityConfig {
                     .authenticated();
 
                 authorize
+                    .requestMatchers("/api/invitations/**")
+                    .authenticated();
+
+                authorize
                     .anyRequest()
                     .permitAll();
             })
