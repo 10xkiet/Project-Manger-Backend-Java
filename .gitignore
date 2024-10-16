@@ -39,5 +39,3 @@ out/
 ### RSA keys ###
 src/main/resources/certs
 
-### Database ###
-db.sqlite3
