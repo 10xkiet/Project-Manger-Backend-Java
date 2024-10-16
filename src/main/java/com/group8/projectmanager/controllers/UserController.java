@@ -3,6 +3,7 @@ package com.group8.projectmanager.controllers;
 import com.group8.projectmanager.dtos.UserDto;
 import com.group8.projectmanager.repositories.UserRepository;
 import com.group8.projectmanager.services.JwtsService;
+import com.group8.projectmanager.services.ProjectService;
 import com.group8.projectmanager.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class UserController {
 
     private final JwtsService jwtsService;
     private final UserService userService;
+    private final ProjectService projectService;
     private final UserRepository userRepository;
 
     @GetMapping("/profile/{username}/")
@@ -33,7 +35,12 @@ public class UserController {
     @PostMapping("/register/")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@Valid @RequestBody UserDto dto) {
-        userService.createUser(dto);
+
+        var user = userService.createUser(dto);
+
+        projectService.createProject(
+            user, "Root project for " + user.getUsername(), null
+        );
     }
 
     @PostMapping("/token/")
