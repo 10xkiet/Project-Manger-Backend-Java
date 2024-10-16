@@ -26,12 +26,12 @@ public class InvitationController {
         invitationService.invite(projectId, dto);
     }
 
-    @GetMapping
+    @GetMapping("/invitations/")
     public List<InvitationViewDto> listInvitations() {
         return invitationService.listInvitations();
     }
 
-    @PostMapping("/invitation/{id}/accept/")
+    @PostMapping("/invitations/{id}/accept/")
     public void acceptInvitation(@PathVariable long id) {
         invitationService.accept(id);
     }
