@@ -1,13 +1,12 @@
 package com.group8.projectmanager.dtos.project;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class ProjectDetailDto {
 
     private Long id;
@@ -17,6 +16,4 @@ public class ProjectDetailDto {
 
     private Timestamp createdOn;
     private Timestamp deadline;
-
-    private List<ProjectSimpleDto> subProjects;
 }

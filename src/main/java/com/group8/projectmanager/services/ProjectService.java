@@ -1,6 +1,5 @@
 package com.group8.projectmanager.services;
 
-import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
 import com.group8.projectmanager.models.Project;
@@ -9,77 +8,108 @@ import com.group8.projectmanager.repositories.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
 
     private final ModelMapper modelMapper;
+    private final UserService userService;
     private final ProjectRepository repository;
 
-    private ProjectSimpleDto convertToDto(Project project) {
+    public ProjectSimpleDto convertToDto(Project project) {
         return modelMapper.map(project, ProjectSimpleDto.class);
     }
 
-    private ProjectDetailDto convertToDetailedDto(Project project) {
-
-        var subProjects = project.getSubProjects()
-            .stream()
-            .map(this::convertToDto)
-            .toList();
-
-        return new ProjectDetailDto(
-
-            project.getId(),
-
-            project.getName(),
-            project.getDescription(),
-
-            project.getCreatedOn(),
-            project.getDeadline(),
-
-            subProjects
-        );
+    public ProjectDetailDto convertToDetailDto(Project project) {
+        return modelMapper.map(project, ProjectDetailDto.class);
     }
 
-    @Transactional(readOnly = true)
-    public List<ProjectSimpleDto> listProjects(User user) {
-        return repository.findByCreatorIdOrManagerId(user.getId(), user.getId())
-            .map(this::convertToDto)
-            .toList();
-    }
+    public boolean ableToView(Project project, User user) {
 
-    @Transactional(readOnly = true)
-    public Optional<ProjectDetailDto> retrieveProject(long id) {
+        var userId = user.getId();
 
-        try {
+        var ownerId = project.getCreator().getId();
+        if (userId.equals(ownerId)) {
+            return true;
+        }
 
-            var target = repository.getReferenceById(id);
-            var mapped = convertToDetailedDto(target);
-
-            return Optional.of(mapped);
-
-        } catch (EntityNotFoundException e) {
-            return Optional.empty();
+        var managerId = project.getManager().getId();
+        if (managerId != null) {
+            return userId.equals(managerId);
+        } else {
+            return false;
         }
     }
 
-    public Project createProject(User creator, ProjectCreateDto dto) {
+    private Project retrieveProjectAndCheck(long id) {
+
+        Project target;
+
+        try {
+            target = repository.getReferenceById(id);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        var user = userService.getUserByContext().orElseThrow();
+        if (!this.ableToView(target, user)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        return target;
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectDetailDto retrieveProject(long id) {
+        var target = retrieveProjectAndCheck(id);
+        return this.convertToDetailDto(target);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectSimpleDto> listRootProjects(User user) {
+
+        var userId = user.getId();
+
+        return repository
+            .findByCreatorIdAndManagerIdAndParentProjectNull(userId, userId)
+            .map(this::convertToDto)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectSimpleDto> listSubProjects(long id) {
+
+        var target = retrieveProjectAndCheck(id);
+
+        return target.getSubProjects()
+            .stream()
+            .map(this::convertToDto)
+            .toList();
+    }
+
+
+    public void createProject(User creator, String name, @Nullable String description) {
 
         var now = new Timestamp(System.currentTimeMillis());
 
-        var newProject = Project.builder()
-            .name(dto.getName())
+        var builder = Project.builder()
+            .name(name)
             .creator(creator)
-            .createdOn(now)
-            .build();
+            .createdOn(now);
 
-        return repository.save(newProject);
+        if (description != null) {
+            builder.description(description);
+        }
+
+        repository.save(builder.build());
     }
 }

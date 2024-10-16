@@ -28,7 +28,7 @@ public class Project {
 
     private Timestamp deadline;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private User creator;
 
     @OneToMany(
