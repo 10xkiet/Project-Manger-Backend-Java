@@ -3,6 +3,8 @@ package com.group8.projectmanager.controllers;
 import com.group8.projectmanager.dtos.invitation.InvitationDto;
 import com.group8.projectmanager.dtos.invitation.InvitationViewDto;
 import com.group8.projectmanager.services.InvitationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/")
+@SecurityRequirements({
+    @SecurityRequirement(name = "basicAuth"),
+    @SecurityRequirement(name = "bearerAuth")
+})
 @RequiredArgsConstructor
 public class InvitationController {
 

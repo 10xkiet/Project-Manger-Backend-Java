@@ -7,6 +7,8 @@ import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
 import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.services.ProjectService;
 import com.group8.projectmanager.services.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects/{id}/")
+@SecurityRequirements({
+    @SecurityRequirement(name = "basicAuth"),
+    @SecurityRequirement(name = "bearerAuth")
+})
 @RequiredArgsConstructor
 public class SubProjectController {
 
