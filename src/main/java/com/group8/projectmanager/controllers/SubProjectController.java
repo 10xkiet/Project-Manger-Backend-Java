@@ -4,12 +4,14 @@ import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
 import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
+import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.services.ProjectService;
 import com.group8.projectmanager.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -54,6 +56,22 @@ public class SubProjectController {
         @Valid @RequestBody ProjectUpdateDto dto
     ) {
         projectService.changeProjectInfo(id, dto);
+    }
+
+    @PatchMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void markCompleted(@PathVariable long id) {
+
+        var target = projectService.retrieveProjectAndCheck(id);
+
+        if (target.getType() != ProjectType.TASK) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Only task can mark completed"
+            );
+        }
+
+        target.setIsCompleted(true);
     }
 }
 
