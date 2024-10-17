@@ -1,9 +1,12 @@
 package com.group8.projectmanager.services;
 
 import com.group8.projectmanager.dtos.UserDto;
+import com.group8.projectmanager.dtos.token.TokenObtainDto;
+import com.group8.projectmanager.dtos.token.TokenRefreshDto;
 import com.group8.projectmanager.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -12,9 +15,9 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +55,7 @@ public class JwtsService {
     }
 
 
-    public Map<String, String> tokenObtainPair(UserDto dto) {
+    public TokenObtainDto tokenObtainPair(UserDto dto) {
 
         var authentication = authenticationProvider.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -65,9 +68,18 @@ public class JwtsService {
             throw new BadCredentialsException("Principal is not of User type.");
         }
 
-        return Map.of(
-            "access", generateToken(user, false).getTokenValue(),
-            "refresh", generateToken(user, true).getTokenValue()
+        return new TokenObtainDto(
+            generateToken(user, false).getTokenValue(),
+            generateToken(user, true).getTokenValue()
         );
+    }
+
+    public TokenRefreshDto refreshToken() {
+
+        var user = userService.getUserByContext()
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        var newAccessToken = generateToken(user, false).getTokenValue();
+        return new TokenRefreshDto(newAccessToken);
     }
 }
