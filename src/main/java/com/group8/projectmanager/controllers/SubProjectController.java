@@ -3,6 +3,7 @@ package com.group8.projectmanager.controllers;
 import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
+import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
 import com.group8.projectmanager.models.Project;
 import com.group8.projectmanager.repositories.ProjectRepository;
 import com.group8.projectmanager.services.ProjectService;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -31,7 +33,8 @@ public class SubProjectController {
     public List<ProjectSimpleDto> listSubProjects(@PathVariable long id) {
         return projectService.listSubProjects(id);
     }
-    @PatchMapping("new-subprojects")
+
+    @PatchMapping("/new-subprojects/")
     public void newSubProjects(@PathVariable long id, @Valid @RequestBody ProjectCreateDto dto){
          var user= userService.getUserByContext().orElseThrow();
          var project=projectService.retrieveProjectAndCheck(id,user);
@@ -41,6 +44,15 @@ public class SubProjectController {
                 description(dto.getDescription()).
                 creator(user).build();
         project.getSubProjects().add(subProject);
+        projectRepository.save(project);
+    }
+
+    @PatchMapping("/change-details/")
+    void changeProjectDetails(@Valid @RequestBody ProjectUpdateDto dto, @PathVariable long id){
+        var project=projectService.retrieveProjectAndCheck(id);
+        project.setDeadline(dto.deadline());
+        project.setName(dto.projectName());
+        project.setDescription(dto.projectDesc());
         projectRepository.save(project);
     }
 

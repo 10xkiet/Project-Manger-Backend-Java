@@ -34,6 +34,7 @@ public class ProjectController {
         var user = userService.getUserByContext().orElseThrow();
         projectService.createProject(user, dto.getName(), dto.getDescription());
     }
+
     @DeleteMapping("/delete-project/")
     @ResponseStatus(HttpStatus.OK)
     public void deleteProject(@Valid @RequestParam Long projectId){
