@@ -131,6 +131,7 @@ public class ProjectService {
             .type(ProjectType.TASK)
             .parentProject(parentProject)
             .creator(creator)
+            .isCompleted(false)
             .createdOn(now);
 
         if (description != null) {
