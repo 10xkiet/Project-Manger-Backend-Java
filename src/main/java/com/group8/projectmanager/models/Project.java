@@ -2,6 +2,7 @@ package com.group8.projectmanager.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -23,6 +24,9 @@ public class Project {
     private String name;
 
     private String description;
+
+    @ColumnDefault("false")
+    private Boolean isCompleted;
 
     @CreationTimestamp
     @Column(nullable = false)

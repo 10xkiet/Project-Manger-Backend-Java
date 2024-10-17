@@ -1,7 +1,8 @@
 package com.group8.projectmanager.services;
 
+import com.group8.projectmanager.dtos.DeleteUserDto;
+import com.group8.projectmanager.dtos.PasswordChangeDto;
 import com.group8.projectmanager.dtos.UserDto;
-import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,5 +65,29 @@ public class UserService {
             .getAuthentication();
 
         return this.getUserByAuthentication(authentication);
+    }
+
+    public void changePassword(PasswordChangeDto dto) {
+
+        var user = getUserByContext().orElseThrow();
+        if (!passwordEncoder.matches(dto.oldPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        var newHashedPassword = passwordEncoder.encode(dto.newPassword());
+        user.setPassword(newHashedPassword);
+
+        repository.save(user);
+    }
+
+    public void deleteUser(DeleteUserDto dto) {
+
+        var user = getUserByContext().orElseThrow();
+
+        if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        repository.delete(user);
     }
 }
