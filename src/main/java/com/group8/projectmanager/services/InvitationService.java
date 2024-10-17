@@ -35,7 +35,7 @@ public class InvitationService {
             invitation.getSender().getUsername(),
             invitation.getReceiver().getUsername(),
 
-            invitation.isAccepted()
+            invitation.getAccepted()
         );
     }
 

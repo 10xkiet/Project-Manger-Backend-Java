@@ -31,7 +31,7 @@ public class UserController {
         var user = userService.createUser(dto);
 
         projectService.createProject(
-            user,
+            user, null,
             "Root project for " + user.getUsername(),
             null
         );

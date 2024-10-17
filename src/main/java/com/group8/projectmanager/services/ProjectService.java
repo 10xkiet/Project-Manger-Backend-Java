@@ -2,6 +2,7 @@ package com.group8.projectmanager.services;
 
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
+import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
 import com.group8.projectmanager.models.Project;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.ProjectRepository;
@@ -30,7 +31,17 @@ public class ProjectService {
     }
 
     public ProjectDetailDto convertToDetailDto(Project project) {
-        return modelMapper.map(project, ProjectDetailDto.class);
+
+        var completed = repository.countByIdAndSubProjectsIsCompletedTrue(project.getId());
+
+        var result = new ProjectDetailDto();
+
+        result.setCompletedCount(completed);
+        result.setSubProjectCount(project.getSubProjects().size());
+
+        modelMapper.map(project, result);
+
+        return result;
     }
 
     public boolean ableToView(Project project, User user) {
@@ -73,7 +84,7 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public ProjectDetailDto retrieveProject(long id) {
+    public ProjectDetailDto retrieveProjectDetail(long id) {
         var target = retrieveProjectAndCheck(id);
         return this.convertToDetailDto(target);
     }
@@ -84,7 +95,7 @@ public class ProjectService {
         var userId = user.getId();
 
         return repository
-            .findByCreatorIdAndManagerIdAndParentProjectNull(userId, userId)
+            .findByCreatorIdOrManagerIdAndParentProjectNull(userId, userId)
             .map(this::convertToDto)
             .toList();
     }
@@ -101,12 +112,16 @@ public class ProjectService {
     }
 
 
-    public void createProject(User creator, String name, @Nullable String description) {
+    public void createProject(
+        User creator, @Nullable Project parentProject,
+        String name, @Nullable String description
+    ) {
 
         var now = new Timestamp(System.currentTimeMillis());
 
         var builder = Project.builder()
             .name(name)
+            .parentProject(parentProject)
             .creator(creator)
             .createdOn(now);
 
@@ -115,5 +130,14 @@ public class ProjectService {
         }
 
         repository.save(builder.build());
+    }
+
+    @Transactional
+    public void changeProjectInfo(long id, ProjectUpdateDto dto) {
+
+        var project = retrieveProjectAndCheck(id);
+        modelMapper.map(dto, project);
+
+        repository.save(project);
     }
 }

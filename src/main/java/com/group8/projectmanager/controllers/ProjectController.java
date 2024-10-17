@@ -29,6 +29,9 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createProject(@Valid @RequestBody ProjectCreateDto dto) {
         var user = userService.getUserByContext().orElseThrow();
-        projectService.createProject(user, dto.getName(), dto.getDescription());
+        projectService.createProject(
+            user, null,
+            dto.getName(), dto.getDescription()
+        );
     }
 }

@@ -8,5 +8,6 @@ import java.util.stream.Stream;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    Stream<Project> findByCreatorIdAndManagerIdAndParentProjectNull(Long creatorId, Long managerId);
+    Stream<Project> findByCreatorIdOrManagerIdAndParentProjectNull(Long creatorId, Long managerId);
+    long countByIdAndSubProjectsIsCompletedTrue(Long id);
 }

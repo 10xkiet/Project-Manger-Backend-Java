@@ -14,6 +14,9 @@ public class ProjectDetailDto {
     private String name;
     private String description;
 
+    private long completedCount;
+    private long subProjectCount;
+
     private Timestamp createdOn;
     private Timestamp deadline;
 }
