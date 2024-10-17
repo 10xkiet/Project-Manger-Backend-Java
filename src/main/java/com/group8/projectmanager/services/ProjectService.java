@@ -4,6 +4,7 @@ import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
 import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
 import com.group8.projectmanager.models.Project;
+import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -83,6 +84,44 @@ public class ProjectService {
         return this.retrieveProjectAndCheck(id, user);
     }
 
+    public void createProject(
+        User creator, @Nullable Project parentProject,
+        String name, @Nullable String description
+    ) {
+
+        if (parentProject != null) {
+            
+            parentProject.setType(ProjectType.PROJECT);
+            parentProject.setIsCompleted(null);
+
+            repository.save(parentProject);
+        }
+
+        var now = new Timestamp(System.currentTimeMillis());
+
+        var builder = Project.builder()
+            .name(name)
+            .type(ProjectType.TASK)
+            .parentProject(parentProject)
+            .creator(creator)
+            .createdOn(now);
+
+        if (description != null) {
+            builder.description(description);
+        }
+
+        repository.save(builder.build());
+    }
+
+    @Transactional
+    public void changeProjectInfo(long id, ProjectUpdateDto dto) {
+
+        var project = retrieveProjectAndCheck(id);
+        modelMapper.map(dto, project);
+
+        repository.save(project);
+    }
+
     @Transactional(readOnly = true)
     public ProjectDetailDto retrieveProjectDetail(long id) {
         var target = retrieveProjectAndCheck(id);
@@ -109,35 +148,5 @@ public class ProjectService {
             .stream()
             .map(this::convertToDto)
             .toList();
-    }
-
-
-    public void createProject(
-        User creator, @Nullable Project parentProject,
-        String name, @Nullable String description
-    ) {
-
-        var now = new Timestamp(System.currentTimeMillis());
-
-        var builder = Project.builder()
-            .name(name)
-            .parentProject(parentProject)
-            .creator(creator)
-            .createdOn(now);
-
-        if (description != null) {
-            builder.description(description);
-        }
-
-        repository.save(builder.build());
-    }
-
-    @Transactional
-    public void changeProjectInfo(long id, ProjectUpdateDto dto) {
-
-        var project = retrieveProjectAndCheck(id);
-        modelMapper.map(dto, project);
-
-        repository.save(project);
     }
 }

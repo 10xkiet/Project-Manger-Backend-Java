@@ -1,5 +1,6 @@
 package com.group8.projectmanager.dtos.project;
 
+import com.group8.projectmanager.models.ProjectType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,8 @@ public class ProjectDetailDto {
 
     private String name;
     private String description;
+
+    private ProjectType type;
 
     private long completedCount;
     private long subProjectCount;

@@ -25,6 +25,9 @@ public class Project {
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    private ProjectType type;
+
     @ColumnDefault("false")
     private Boolean isCompleted;
 
@@ -37,15 +40,12 @@ public class Project {
     @ManyToOne(optional = false)
     private User creator;
 
-    @OneToMany(
-        cascade = CascadeType.PERSIST,
-        orphanRemoval = true
-    )
-    private List<Project> subProjects;
-
     @ManyToOne
     private User manager;
 
     @ManyToOne
     private Project parentProject;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Project> subProjects;
 }
