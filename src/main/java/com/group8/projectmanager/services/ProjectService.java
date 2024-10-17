@@ -27,17 +27,44 @@ public class ProjectService {
     private final UserService userService;
     private final ProjectRepository repository;
 
-    public ProjectSimpleDto convertToDto(Project project) {
+    private ProjectSimpleDto convertToDto(Project project) {
         return modelMapper.map(project, ProjectSimpleDto.class);
     }
 
-    public ProjectDetailDto convertToDetailDto(Project project) {
+    private boolean computeCompleted(Project project) {
 
-        var completed = repository.countByIdAndSubProjectsIsCompletedTrue(project.getId());
+        if (project.getType() == ProjectType.TASK) {
+            return project.getIsCompleted();
+        }
+
+        if (project.getIsCompleted()) {
+            return true;
+        }
+
+        boolean allCompleted = project.getSubProjects()
+            .stream()
+            .allMatch(this::computeCompleted);
+
+        if (allCompleted) {
+
+            project.setIsCompleted(true);
+            repository.save(project);
+
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+    private ProjectDetailDto convertToDetailDto(Project project) {
 
         var result = new ProjectDetailDto();
 
+        computeCompleted(project);
+        var completed = repository.countByIdAndSubProjectsIsCompletedTrue(project.getId());
         result.setCompletedCount(completed);
+
         result.setSubProjectCount(project.getSubProjects().size());
 
         modelMapper.map(project, result);
@@ -90,9 +117,9 @@ public class ProjectService {
     ) {
 
         if (parentProject != null) {
-            
+
             parentProject.setType(ProjectType.PROJECT);
-            parentProject.setIsCompleted(null);
+            parentProject.setIsCompleted(false);
 
             repository.save(parentProject);
         }
