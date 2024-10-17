@@ -38,13 +38,14 @@ public class SubProjectController {
     public void newSubProjects(@PathVariable long id, @Valid @RequestBody ProjectCreateDto dto){
          var user= userService.getUserByContext().orElseThrow();
          var project=projectService.retrieveProjectAndCheck(id,user);
-         projectService.createProject(user, dto.getName(), dto.getDescription());
         var subProject= Project.builder().
                 name(dto.getName()).
                 description(dto.getDescription()).
                 creator(user).build();
         project.getSubProjects().add(subProject);
+        projectRepository.save(subProject);
         projectRepository.save(project);
+        
     }
 
     @PatchMapping("/change-details/")
