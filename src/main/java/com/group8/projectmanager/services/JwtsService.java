@@ -4,13 +4,14 @@ import com.group8.projectmanager.dtos.UserDto;
 import com.group8.projectmanager.dtos.token.TokenObtainDto;
 import com.group8.projectmanager.dtos.token.TokenRefreshResponseDto;
 import com.group8.projectmanager.models.User;
+import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,7 +24,9 @@ public class JwtsService {
     private final JwtDecoder jwtDecoder;
 
     private final UserService userService;
-    private final AuthenticationProvider authenticationProvider;
+    private final UserRepository userRepository;
+
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
 
     @Value("${jwts.access-token-lifetime}")
     private long accessTokenLifetime;
@@ -55,7 +58,7 @@ public class JwtsService {
 
     public TokenObtainDto tokenObtainPair(UserDto dto) {
 
-        var authentication = authenticationProvider.authenticate(
+        var authentication = daoAuthenticationProvider.authenticate(
             new UsernamePasswordAuthenticationToken(
                 dto.username(), dto.password()
             )
@@ -74,11 +77,9 @@ public class JwtsService {
 
     public TokenRefreshResponseDto refreshToken(String refresh) {
 
-        var claim = new JwtAuthenticationToken(jwtDecoder.decode(refresh));
-        var authentication = authenticationProvider.authenticate(claim);
-
-        var user = userService.getUserByAuthentication(authentication)
-            .orElseThrow();
+        var claim = jwtDecoder.decode(refresh);
+        var user = userRepository.findByUsername(claim.getSubject())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         var newAccessToken = generateToken(user, false).getTokenValue();
         return new TokenRefreshResponseDto(newAccessToken);
