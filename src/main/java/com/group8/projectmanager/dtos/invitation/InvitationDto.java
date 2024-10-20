@@ -5,6 +5,12 @@ import jakarta.validation.constraints.NotEmpty;
 public record InvitationDto(
 
     @NotEmpty
-    String receiver
+    String receiver,
+
+    @NotEmpty
+    String title,
+
+    @NotEmpty
+    String description
 
 ) {}

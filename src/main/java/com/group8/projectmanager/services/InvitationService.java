@@ -8,6 +8,7 @@ import com.group8.projectmanager.repositories.ProjectRepository;
 import com.group8.projectmanager.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InvitationService {
 
+    private final ModelMapper modelMapper;
+
     private final UserService userService;
     private final UserRepository userRepository;
 
@@ -28,15 +31,13 @@ public class InvitationService {
     private final InvitationRepository invitationRepository;
 
     private InvitationViewDto convertToDto(Invitation invitation) {
-        return new InvitationViewDto(
 
-            invitation.getId(),
+        var result = new InvitationViewDto();
 
-            invitation.getSender().getUsername(),
-            invitation.getReceiver().getUsername(),
+        result.setSender(invitation.getSender().getUsername());
+        modelMapper.map(invitation, result);
 
-            invitation.getAccepted()
-        );
+        return result;
     }
 
     public void invite(long projectId, InvitationDto invitationDto) {
@@ -49,15 +50,21 @@ public class InvitationService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         var invitation = Invitation.builder()
+
+            .title(invitationDto.title())
+            .description(invitationDto.description())
+
             .sender(sender)
             .receiver(invitedUser)
+
             .project(targetProject)
+
             .build();
 
         invitationRepository.save(invitation);
     }
 
-    public void accept(long id) {
+    public void changeInvitationStatus(long id, boolean isAccept) {
 
         Invitation target;
 
@@ -73,10 +80,21 @@ public class InvitationService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        var targetProject = target.getProject();
-        targetProject.setManager(user);
+        if (isAccept) {
 
-        projectRepository.save(targetProject);
+            var targetProject = target.getProject();
+            targetProject.setManager(user);
+
+            projectRepository.save(targetProject);
+
+            target.setAccepted(true);
+            invitationRepository.save(target);
+
+        } else {
+
+            target.setAccepted(false);
+            invitationRepository.save(target);
+        }
     }
 
     @Transactional(readOnly = true)

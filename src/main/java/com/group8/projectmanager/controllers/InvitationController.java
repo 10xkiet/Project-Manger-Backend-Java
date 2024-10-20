@@ -39,6 +39,11 @@ public class InvitationController {
 
     @PostMapping("/invitations/{id}/accept/")
     public void acceptInvitation(@PathVariable long id) {
-        invitationService.accept(id);
+        invitationService.changeInvitationStatus(id, true);
+    }
+
+    @PostMapping("/invitations/{id}/reject/")
+    public void rejectInvitation(@PathVariable long id) {
+        invitationService.changeInvitationStatus(id, false);
     }
 }

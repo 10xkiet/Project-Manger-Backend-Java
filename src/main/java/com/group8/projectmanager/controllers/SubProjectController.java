@@ -2,7 +2,6 @@ package com.group8.projectmanager.controllers;
 
 import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
-import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
 import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
 import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.services.ProjectService;
@@ -35,7 +34,7 @@ public class SubProjectController {
     }
 
     @GetMapping("/subprojects/")
-    public List<ProjectSimpleDto> listSubProjects(@PathVariable long id) {
+    public List<ProjectDetailDto> listSubProjects(@PathVariable long id) {
         return projectService.listSubProjects(id);
     }
 
@@ -80,4 +79,3 @@ public class SubProjectController {
         target.setIsCompleted(true);
     }
 }
-

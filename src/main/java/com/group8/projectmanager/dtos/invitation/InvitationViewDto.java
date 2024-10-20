@@ -1,12 +1,19 @@
 package com.group8.projectmanager.dtos.invitation;
 
-public record InvitationViewDto(
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
-    long id,
+@Data
+@RequiredArgsConstructor
+public class InvitationViewDto {
 
-    String sender,
-    String receiver,
+    private long id;
 
-    boolean accepted
+    private String title;
+    private String description;
 
-) {}
+    private String sender;
+
+    private boolean accepted;
+
+}

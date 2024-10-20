@@ -15,6 +15,9 @@ public class ProjectDetailDto {
     private String name;
     private String description;
 
+    private String creator;
+    private String manager;
+
     private ProjectType type;
 
     private long completedCount;

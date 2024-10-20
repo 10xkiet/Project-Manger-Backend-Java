@@ -65,6 +65,9 @@ public class ProjectService {
         var completed = repository.countByIdAndSubProjectsIsCompletedTrue(project.getId());
         result.setCompletedCount(completed);
 
+        result.setCreator(project.getCreator().getUsername());
+        result.setManager(project.getManager().getUsername());
+
         result.setSubProjectCount(project.getSubProjects().size());
 
         modelMapper.map(project, result);
@@ -157,24 +160,24 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectSimpleDto> listRootProjects(User user) {
+    public List<ProjectDetailDto> listRootProjects(User user) {
 
         var userId = user.getId();
 
         return repository
             .findByCreatorIdOrManagerIdAndParentProjectNull(userId, userId)
-            .map(this::convertToDto)
+            .map(this::convertToDetailDto)
             .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectSimpleDto> listSubProjects(long id) {
+    public List<ProjectDetailDto> listSubProjects(long id) {
 
         var target = retrieveProjectAndCheck(id);
 
         return target.getSubProjects()
             .stream()
-            .map(this::convertToDto)
+            .map(this::convertToDetailDto)
             .toList();
     }
 }
