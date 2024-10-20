@@ -2,20 +2,16 @@ package com.group8.projectmanager.services;
 
 import com.group8.projectmanager.dtos.UserDto;
 import com.group8.projectmanager.dtos.token.TokenObtainDto;
-import com.group8.projectmanager.dtos.token.TokenRefreshDto;
+import com.group8.projectmanager.dtos.token.TokenRefreshResponseDto;
 import com.group8.projectmanager.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 
@@ -24,8 +20,10 @@ import java.time.Instant;
 public class JwtsService {
 
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
+
     private final UserService userService;
-    private final DaoAuthenticationProvider authenticationProvider;
+    private final AuthenticationProvider authenticationProvider;
 
     @Value("${jwts.access-token-lifetime}")
     private long accessTokenLifetime;
@@ -74,12 +72,15 @@ public class JwtsService {
         );
     }
 
-    public TokenRefreshDto refreshToken() {
+    public TokenRefreshResponseDto refreshToken(String refresh) {
 
-        var user = userService.getUserByContext()
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        var claim = new JwtAuthenticationToken(jwtDecoder.decode(refresh));
+        var authentication = authenticationProvider.authenticate(claim);
+
+        var user = userService.getUserByAuthentication(authentication)
+            .orElseThrow();
 
         var newAccessToken = generateToken(user, false).getTokenValue();
-        return new TokenRefreshDto(newAccessToken);
+        return new TokenRefreshResponseDto(newAccessToken);
     }
 }
