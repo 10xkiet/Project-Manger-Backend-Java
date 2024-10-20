@@ -4,7 +4,8 @@ import com.group8.projectmanager.dtos.DeleteUserDto;
 import com.group8.projectmanager.dtos.PasswordChangeDto;
 import com.group8.projectmanager.dtos.UserDto;
 import com.group8.projectmanager.dtos.token.TokenObtainDto;
-import com.group8.projectmanager.dtos.token.TokenRefreshDto;
+import com.group8.projectmanager.dtos.token.TokenRefreshRequestDto;
+import com.group8.projectmanager.dtos.token.TokenRefreshResponseDto;
 import com.group8.projectmanager.repositories.UserRepository;
 import com.group8.projectmanager.services.JwtsService;
 import com.group8.projectmanager.services.ProjectService;
@@ -43,8 +44,10 @@ public class UserController {
     }
 
     @PostMapping("/token/refresh/")
-    public TokenRefreshDto refreshToken() {
-        return jwtsService.refreshToken();
+    public TokenRefreshResponseDto refreshToken(
+        @Valid @RequestBody TokenRefreshRequestDto dto
+    ) {
+        return jwtsService.refreshToken(dto.refresh());
     }
 
     @PostMapping("/change-password/")
