@@ -3,6 +3,7 @@ package com.group8.projectmanager.services;
 import com.group8.projectmanager.dtos.invitation.InvitationDto;
 import com.group8.projectmanager.dtos.invitation.InvitationViewDto;
 import com.group8.projectmanager.models.Invitation;
+import com.group8.projectmanager.models.InvitationStatus;
 import com.group8.projectmanager.repositories.InvitationRepository;
 import com.group8.projectmanager.repositories.ProjectRepository;
 import com.group8.projectmanager.repositories.UserRepository;
@@ -34,12 +35,13 @@ public class InvitationService {
 
         var result = new InvitationViewDto();
 
-        result.setSender(invitation.getSender().getUsername());
         modelMapper.map(invitation, result);
+        result.setSender(invitation.getSender().getUsername());
 
         return result;
     }
 
+    @Transactional
     public void invite(long projectId, InvitationDto invitationDto) {
 
         var sender = userService.getUserByContext().orElseThrow();
@@ -49,6 +51,10 @@ public class InvitationService {
         var invitedUser = userRepository.findByUsername(username)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        if (sender.getId().equals(invitedUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
         var invitation = Invitation.builder()
 
             .title(invitationDto.title())
@@ -57,6 +63,7 @@ public class InvitationService {
             .sender(sender)
             .receiver(invitedUser)
 
+            .status(InvitationStatus.PENDING)
             .project(targetProject)
 
             .build();
@@ -64,6 +71,7 @@ public class InvitationService {
         invitationRepository.save(invitation);
     }
 
+    @Transactional
     public void changeInvitationStatus(long id, boolean isAccept) {
 
         Invitation target;
@@ -87,12 +95,12 @@ public class InvitationService {
 
             projectRepository.save(targetProject);
 
-            target.setAccepted(true);
+            target.setStatus(InvitationStatus.ACCEPTED);
             invitationRepository.save(target);
 
         } else {
 
-            target.setAccepted(false);
+            target.setStatus(InvitationStatus.REJECTED);
             invitationRepository.save(target);
         }
     }

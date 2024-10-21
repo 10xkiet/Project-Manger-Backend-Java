@@ -1,5 +1,6 @@
 package com.group8.projectmanager.dtos.invitation;
 
+import com.group8.projectmanager.models.InvitationStatus;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +15,5 @@ public class InvitationViewDto {
 
     private String sender;
 
-    private boolean accepted;
-
+    private InvitationStatus status;
 }

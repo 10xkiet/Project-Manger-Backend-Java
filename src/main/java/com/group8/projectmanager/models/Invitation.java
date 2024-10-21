@@ -27,14 +27,15 @@ public class Invitation {
     @CreationTimestamp
     private Timestamp sentOn;
 
-    private Boolean accepted;
+    @Enumerated(EnumType.STRING)
+    private InvitationStatus status;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false)
     private Project project;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     private User sender;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     private User receiver;
 }

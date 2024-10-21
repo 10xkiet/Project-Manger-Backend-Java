@@ -10,7 +10,6 @@ public record InvitationDto(
     @NotEmpty
     String title,
 
-    @NotEmpty
     String description
 
 ) {}
