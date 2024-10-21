@@ -66,7 +66,11 @@ public class ProjectService {
         result.setCompletedCount(completed);
 
         result.setCreator(project.getCreator().getUsername());
-        result.setManager(project.getManager().getUsername());
+
+        var manager = project.getManager();
+        if (manager != null) {
+            result.setManager(manager.getUsername());
+        }
 
         result.setSubProjectCount(project.getSubProjects().size());
 
