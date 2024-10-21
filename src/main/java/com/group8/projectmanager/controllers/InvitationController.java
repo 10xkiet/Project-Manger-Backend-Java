@@ -26,7 +26,7 @@ public class InvitationController {
     @PostMapping("/projects/{id}/invite/")
     @ResponseStatus(HttpStatus.CREATED)
     public void invite(
-        @PathVariable long projectId,
+        @PathVariable("id") long projectId,
         @Valid @RequestBody InvitationDto dto
     ) {
         invitationService.invite(projectId, dto);

@@ -41,17 +41,12 @@ public class SubProjectController {
     @PostMapping("/subprojects/")
     @ResponseStatus(HttpStatus.CREATED)
     public void newSubProject(
-        @PathVariable long id,
+        @PathVariable("id") long parentId,
         @Valid @RequestBody ProjectCreateDto dto
     ) {
+        projectService.newSubProject(parentId, dto);
 
-        var user = userService.getUserByContext().orElseThrow();
 
-        var parentProject = projectService.retrieveProjectAndCheck(id, user);
-        projectService.createProject(
-            user, parentProject,
-            dto.getName(), dto.getDescription()
-        );
     }
 
     @PutMapping

@@ -1,5 +1,6 @@
 package com.group8.projectmanager.services;
 
+import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
 import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
@@ -8,6 +9,7 @@ import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -61,6 +63,8 @@ public class ProjectService {
 
         var result = new ProjectDetailDto();
 
+        modelMapper.map(project, result);
+
         computeCompleted(project);
         var completed = repository.countByIdAndSubProjectsIsCompletedTrue(project.getId());
         result.setCompletedCount(completed);
@@ -74,8 +78,6 @@ public class ProjectService {
 
         result.setSubProjectCount(project.getSubProjects().size());
 
-        modelMapper.map(project, result);
-
         return result;
     }
 
@@ -88,9 +90,9 @@ public class ProjectService {
             return true;
         }
 
-        var managerId = project.getManager().getId();
-        if (managerId != null) {
-            return userId.equals(managerId);
+        var manager = project.getManager();
+        if (manager != null) {
+            return userId.equals(manager.getId());
         } else {
             return false;
         }
@@ -183,5 +185,17 @@ public class ProjectService {
             .stream()
             .map(this::convertToDetailDto)
             .toList();
+    }
+
+    @Transactional
+    public void newSubProject(long parentId, ProjectCreateDto dto) {
+
+        var user = userService.getUserByContext().orElseThrow();
+
+        var parentProject = this.retrieveProjectAndCheck(parentId, user);
+        this.createProject(
+            user, parentProject,
+            dto.getName(), dto.getDescription()
+        );
     }
 }
