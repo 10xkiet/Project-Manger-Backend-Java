@@ -3,16 +3,13 @@ package com.group8.projectmanager.controllers;
 import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
 import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
-import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.services.ProjectService;
-import com.group8.projectmanager.services.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,9 +20,8 @@ import java.util.List;
     @SecurityRequirement(name = "bearerAuth")
 })
 @RequiredArgsConstructor
-public class SubProjectController {
+public class ProjectRetrieveController {
 
-    private final UserService userService;
     private final ProjectService projectService;
 
     @GetMapping
@@ -45,8 +41,6 @@ public class SubProjectController {
         @Valid @RequestBody ProjectCreateDto dto
     ) {
         projectService.newSubProject(parentId, dto);
-
-
     }
 
     @PutMapping
@@ -61,16 +55,12 @@ public class SubProjectController {
     @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markCompleted(@PathVariable long id) {
+        projectService.markCompleted(id);
+    }
 
-        var target = projectService.retrieveProjectAndCheck(id);
-
-        if (target.getType() != ProjectType.TASK) {
-            throw new ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Only task can mark completed"
-            );
-        }
-
-        target.setIsCompleted(true);
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProject(@PathVariable long id) {
+        projectService.deleteProject(id);
     }
 }

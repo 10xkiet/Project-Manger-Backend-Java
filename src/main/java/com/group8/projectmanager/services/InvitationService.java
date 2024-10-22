@@ -83,7 +83,7 @@ public class InvitationService {
         }
 
         var user = userService.getUserByContext().orElseThrow();
-        var userIsReceiver = target.getReceiver().getId().equals(user.getId());
+        var userIsReceiver = userService.isEqual(user, target.getReceiver());
         if (!userIsReceiver) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -113,5 +113,36 @@ public class InvitationService {
         return invitationRepository.findByReceiverId(user.getId())
             .map(this::convertToDto)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<InvitationViewDto> listMyInvitations() {
+
+        var user = userService.getUserByContext().orElseThrow();
+
+        return invitationRepository.findBySenderId(user.getId())
+            .map(this::convertToDto)
+            .toList();
+    }
+
+    @Transactional
+    public void deleteInvitation(long id) {
+
+        Invitation target;
+
+        try {
+            target = invitationRepository.getReferenceById(id);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        var user = userService.getUserByContext().orElseThrow();
+
+        boolean userIsSender = userService.isEqual(user, target.getSender());
+        if (!userIsSender) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        invitationRepository.delete(target);
     }
 }

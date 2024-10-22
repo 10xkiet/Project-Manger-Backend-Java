@@ -42,6 +42,10 @@ public class UserService {
         return repository.save(user);
     }
 
+    public boolean isEqual(User a, User b) {
+        return a.getId().equals(b.getId());
+    }
+
     public Optional<User>
     getUserByAuthentication(@Nullable Authentication authentication) {
 

@@ -9,4 +9,5 @@ import java.util.stream.Stream;
 @Repository
 public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     Stream<Invitation> findByReceiverId(Long id);
+    Stream<Invitation> findBySenderId(Long id);
 }

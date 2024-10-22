@@ -7,9 +7,9 @@ import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class JwtsService {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    private final DaoAuthenticationProvider daoAuthenticationProvider;
+    private final AuthenticationProvider authenticationProvider;
 
     @Value("${jwts.access-token-lifetime}")
     private long accessTokenLifetime;
@@ -58,7 +58,7 @@ public class JwtsService {
 
     public TokenObtainDto tokenObtainPair(UserDto dto) {
 
-        var authentication = daoAuthenticationProvider.authenticate(
+        var authentication = authenticationProvider.authenticate(
             new UsernamePasswordAuthenticationToken(
                 dto.username(), dto.password()
             )

@@ -9,7 +9,6 @@ import com.group8.projectmanager.models.ProjectType;
 import com.group8.projectmanager.models.User;
 import com.group8.projectmanager.repositories.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -197,5 +196,26 @@ public class ProjectService {
             user, parentProject,
             dto.getName(), dto.getDescription()
         );
+    }
+
+    @Transactional
+    public void markCompleted(long id) {
+
+        var target = retrieveProjectAndCheck(id);
+
+        if (target.getType() != ProjectType.TASK) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Only task can mark completed"
+            );
+        }
+
+        target.setIsCompleted(true);
+        repository.save(target);
+    }
+
+    public void deleteProject(long id) {
+        var target = retrieveProjectAndCheck(id);
+        repository.delete(target);
     }
 }

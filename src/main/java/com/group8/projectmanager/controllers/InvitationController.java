@@ -37,6 +37,17 @@ public class InvitationController {
         return invitationService.listInvitations();
     }
 
+    @GetMapping("/myInvitations/")
+    public List<InvitationViewDto> listMyInvitations() {
+        return invitationService.listMyInvitations();
+    }
+
+    @DeleteMapping("/invitations/{id}/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInvitation(@PathVariable long id) {
+        invitationService.deleteInvitation(id);
+    }
+
     @PostMapping("/invitations/{id}/accept/")
     public void acceptInvitation(@PathVariable long id) {
         invitationService.changeInvitationStatus(id, true);
