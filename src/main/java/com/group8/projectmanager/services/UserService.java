@@ -43,7 +43,16 @@ public class UserService {
         return repository.save(user);
     }
 
-    public boolean isEqual(User a, User b) {
+    public boolean isEqual(@Nullable User a, @Nullable User b) {
+
+        if (a == null && b == null) {
+            return true;
+        }
+
+        if (a == null || b == null) {
+            return false;
+        }
+
         return a.getId().equals(b.getId());
     }
 

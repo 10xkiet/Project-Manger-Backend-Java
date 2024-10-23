@@ -85,18 +85,9 @@ public class ProjectService {
         return result;
     }
 
-    public boolean ableToView(Project project, User user) {
-
-        if (userService.isEqual(user, project.getCreator())) {
-            return true;
-        }
-
-        var manager = project.getManager();
-        if (manager != null) {
-            return userService.isEqual(user, manager);
-        } else {
-            return false;
-        }
+    private boolean ableToView(Project project, User user) {
+        return userService.isEqual(user, project.getCreator())
+            || userService.isEqual(user, project.getManager());
     }
 
     public Project retrieveProjectAndCheck(long id, User user) {
