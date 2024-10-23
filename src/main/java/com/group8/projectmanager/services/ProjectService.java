@@ -130,15 +130,12 @@ public class ProjectService {
         String name, @Nullable String description
     ) {
 
-        ProjectType type;
+        ProjectType type = ProjectType.TASK;
 
-        if (parentProject != null) {
-
-            convertToProject(parentProject);
-            type = ProjectType.TASK;
-
-        } else {
+        if (parentProject == null) {
             type = ProjectType.ROOT;
+        } else if (parentProject.getType() == ProjectType.TASK) {
+            convertToProject(parentProject);
         }
 
         var now = new Timestamp(System.currentTimeMillis());
