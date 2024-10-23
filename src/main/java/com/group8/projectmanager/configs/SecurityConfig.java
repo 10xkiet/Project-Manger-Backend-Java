@@ -5,6 +5,7 @@ import com.group8.projectmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -15,6 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -35,9 +39,15 @@ public class SecurityConfig {
         return http
 
             .cors(cors ->
-                cors.configurationSource(req ->
-                    new CorsConfiguration().applyPermitDefaultValues()
-                )
+                cors.configurationSource(req -> {
+
+                    var configuration = new CorsConfiguration();
+
+                    Arrays.stream(HttpMethod.values())
+                        .forEach(configuration::addAllowedMethod);
+
+                    return configuration.applyPermitDefaultValues();
+                })
             )
 
             .csrf(CsrfConfigurer::disable)
