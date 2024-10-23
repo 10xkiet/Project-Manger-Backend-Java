@@ -90,6 +90,14 @@ public class ProjectService {
             || userService.isEqual(user, project.getManager());
     }
 
+    private void convertToProject(Project project) {
+
+        project.setType(ProjectType.PROJECT);
+        project.setIsCompleted(false);
+
+        repository.save(project);
+    }
+
     public Project retrieveProjectAndCheck(long id, User user) {
 
         Project target;
@@ -116,24 +124,28 @@ public class ProjectService {
         return this.retrieveProjectAndCheck(id, user);
     }
 
+
     public void createProject(
         User creator, @Nullable Project parentProject,
         String name, @Nullable String description
     ) {
 
+        ProjectType type;
+
         if (parentProject != null) {
 
-            parentProject.setType(ProjectType.PROJECT);
-            parentProject.setIsCompleted(false);
+            convertToProject(parentProject);
+            type = ProjectType.TASK;
 
-            repository.save(parentProject);
+        } else {
+            type = ProjectType.ROOT;
         }
 
         var now = new Timestamp(System.currentTimeMillis());
 
         var builder = Project.builder()
             .name(name)
-            .type(ProjectType.TASK)
+            .type(type)
             .parentProject(parentProject)
             .creator(creator)
             .isCompleted(false)
