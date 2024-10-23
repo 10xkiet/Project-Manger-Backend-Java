@@ -51,7 +51,9 @@ public class InvitationService {
         var invitedUser = userRepository.findByUsername(username)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (sender.getId().equals(invitedUser.getId())) {
+        var senderIsInvited = userService.isEqual(sender, invitedUser);
+
+        if (senderIsInvited) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
@@ -75,15 +77,17 @@ public class InvitationService {
     public void changeInvitationStatus(long id, boolean isAccept) {
 
         Invitation target;
+        boolean userIsReceiver;
+
+        var user = userService.getUserByContext().orElseThrow();
 
         try {
             target = invitationRepository.getReferenceById(id);
+            userIsReceiver = userService.isEqual(user, target.getReceiver());
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
-        var user = userService.getUserByContext().orElseThrow();
-        var userIsReceiver = userService.isEqual(user, target.getReceiver());
         if (!userIsReceiver) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -129,16 +133,17 @@ public class InvitationService {
     public void deleteInvitation(long id) {
 
         Invitation target;
+        boolean userIsSender;
+
+        var user = userService.getUserByContext().orElseThrow();
 
         try {
             target = invitationRepository.getReferenceById(id);
+            userIsSender = userService.isEqual(user, target.getSender());
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
-        var user = userService.getUserByContext().orElseThrow();
-
-        boolean userIsSender = userService.isEqual(user, target.getSender());
         if (!userIsSender) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

@@ -87,16 +87,13 @@ public class ProjectService {
 
     public boolean ableToView(Project project, User user) {
 
-        var userId = user.getId();
-
-        var ownerId = project.getCreator().getId();
-        if (userId.equals(ownerId)) {
+        if (userService.isEqual(user, project.getCreator())) {
             return true;
         }
 
         var manager = project.getManager();
         if (manager != null) {
-            return userId.equals(manager.getId());
+            return userService.isEqual(user, manager);
         } else {
             return false;
         }
@@ -105,14 +102,16 @@ public class ProjectService {
     public Project retrieveProjectAndCheck(long id, User user) {
 
         Project target;
+        boolean isAbleToView;
 
         try {
             target = repository.getReferenceById(id);
+            isAbleToView = this.ableToView(target, user);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
-        if (!this.ableToView(target, user)) {
+        if (!isAbleToView) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
@@ -219,8 +218,19 @@ public class ProjectService {
         repository.save(target);
     }
 
+    @Transactional
     public void deleteProject(long id) {
-        var target = retrieveProjectAndCheck(id);
-        repository.delete(target);
+
+        var user = userService.getUserByContext().orElseThrow();
+        var target = retrieveProjectAndCheck(id, user);
+
+        boolean userIsManager = userService.isEqual(user, target.getManager());
+
+        if (userIsManager) {
+            target.setManager(null);
+            repository.save(target);
+        } else {
+            repository.delete(target);
+        }
     }
 }
