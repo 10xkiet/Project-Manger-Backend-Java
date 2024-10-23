@@ -75,6 +75,11 @@ public class ProjectService {
             result.setManager(manager.getUsername());
         }
 
+        var parent = project.getParentProject();
+        if (parent != null) {
+            result.setParentProjectId(parent.getId());
+        }
+
         result.setSubProjectCount(project.getSubProjects().size());
 
         return result;
@@ -170,7 +175,7 @@ public class ProjectService {
         var userId = user.getId();
 
         return repository
-            .findByCreatorIdOrManagerIdAndParentProjectNull(userId, userId)
+            .findByParentProjectNullAndCreatorIdOrManagerId(userId, userId)
             .map(this::convertToDetailDto)
             .toList();
     }

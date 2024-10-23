@@ -18,6 +18,7 @@ public class ProjectDetailDto {
     private String creator;
     private String manager;
 
+    private Long parentProjectId;
     private ProjectType type;
 
     private long completedCount;

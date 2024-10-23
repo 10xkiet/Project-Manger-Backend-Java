@@ -46,6 +46,10 @@ public class Project {
     @ManyToOne
     private Project parentProject;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "parentProject",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY
+    )
     private List<Project> subProjects;
 }
