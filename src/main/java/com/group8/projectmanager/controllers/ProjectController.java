@@ -31,6 +31,12 @@ public class ProjectController {
         return projectService.listRootProjects(user);
     }
 
+    @GetMapping("/all")
+    public List<ProjectDetailDto> listAll() {
+        var user = userService.getUserByContext().orElseThrow();
+        return projectService.listAllProjects(user);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createProject(@Valid @RequestBody ProjectCreateDto dto) {

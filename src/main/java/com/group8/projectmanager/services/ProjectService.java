@@ -124,7 +124,6 @@ public class ProjectService {
         return this.retrieveProjectAndCheck(id, user);
     }
 
-
     public void createProject(
         User creator, @Nullable Project parentProject,
         String name, @Nullable String description
@@ -177,6 +176,17 @@ public class ProjectService {
 
         return repository
             .findByParentProjectNullAndCreatorIdOrManagerId(userId, userId)
+            .map(this::convertToDetailDto)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectDetailDto> listAllProjects(User user) {
+
+        var userId = user.getId();
+
+        return repository
+            .findByCreatorIdOrManagerId(userId, userId)
             .map(this::convertToDetailDto)
             .toList();
     }
