@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.ErrorResponseException;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -110,11 +110,11 @@ public class ProjectService {
             isAbleToView = this.ableToView(target, user);
 
         } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ErrorResponseException(HttpStatus.NOT_FOUND);
         }
 
         if (!isAbleToView) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ErrorResponseException(HttpStatus.FORBIDDEN);
         }
 
         return target;
@@ -210,10 +210,11 @@ public class ProjectService {
         var target = retrieveProjectAndCheck(id);
 
         if (target.getType() != ProjectType.TASK) {
-            throw new ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Only task can mark completed"
-            );
+
+            var e = new ErrorResponseException(HttpStatus.CONFLICT);
+            e.setTitle("Only task can mark completed.");
+
+            throw e;
         }
 
         target.setIsCompleted(true);
@@ -226,7 +227,7 @@ public class ProjectService {
         var user = userService.getUserByContext().orElseThrow();
         var target = retrieveProjectAndCheck(id, user);
 
-        boolean userIsManager = userService.isEqual(user, target.getManager());
+        var userIsManager = userService.isEqual(user, target.getManager());
 
         if (userIsManager) {
             target.setManager(null);

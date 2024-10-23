@@ -7,13 +7,12 @@ import com.group8.projectmanager.models.InvitationStatus;
 import com.group8.projectmanager.repositories.InvitationRepository;
 import com.group8.projectmanager.repositories.ProjectRepository;
 import com.group8.projectmanager.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.ErrorResponseException;
 
 import java.util.List;
 
@@ -49,12 +48,12 @@ public class InvitationService {
 
         var username = invitationDto.receiver();
         var invitedUser = userRepository.findByUsername(username)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new ErrorResponseException(HttpStatus.NOT_FOUND));
 
         var senderIsInvited = userService.isEqual(sender, invitedUser);
 
         if (senderIsInvited) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ErrorResponseException(HttpStatus.BAD_REQUEST);
         }
 
         var invitation = Invitation.builder()
@@ -76,22 +75,13 @@ public class InvitationService {
     @Transactional
     public void changeInvitationStatus(long id, boolean isAccept) {
 
-        Invitation target;
-        boolean userIsReceiver;
+        var target = invitationRepository.getReferenceById(id);
 
         var user = userService.getUserByContext().orElseThrow();
-
-        try {
-
-            target = invitationRepository.getReferenceById(id);
-            userIsReceiver = userService.isEqual(user, target.getReceiver());
-
-        } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        var userIsReceiver = userService.isEqual(user, target.getReceiver());
 
         if (!userIsReceiver) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ErrorResponseException(HttpStatus.FORBIDDEN);
         }
 
         if (isAccept) {
@@ -134,22 +124,13 @@ public class InvitationService {
     @Transactional
     public void deleteInvitation(long id) {
 
-        Invitation target;
-        boolean userIsSender;
+        var target = invitationRepository.getReferenceById(id);
 
         var user = userService.getUserByContext().orElseThrow();
-
-        try {
-
-            target = invitationRepository.getReferenceById(id);
-            userIsSender = userService.isEqual(user, target.getSender());
-
-        } catch (EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        var userIsSender = userService.isEqual(user, target.getSender());
 
         if (!userIsSender) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ErrorResponseException(HttpStatus.FORBIDDEN);
         }
 
         invitationRepository.delete(target);

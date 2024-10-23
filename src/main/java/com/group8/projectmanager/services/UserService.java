@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.ErrorResponseException;
 
 import java.util.Optional;
 
@@ -26,10 +26,11 @@ public class UserService {
     public User createUser(UserDto dto) {
 
         if (repository.existsByUsername(dto.username())) {
-            throw new ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Username already exists. Please try a different one."
-            );
+
+            var e = new ErrorResponseException(HttpStatus.CONFLICT);
+            e.setTitle("Username already exists. Please try a different one.");
+
+            throw e;
         }
 
         var hashedPassword = passwordEncoder.encode(dto.password());
@@ -75,7 +76,7 @@ public class UserService {
 
         var user = getUserByContext().orElseThrow();
         if (!passwordEncoder.matches(dto.oldPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ErrorResponseException(HttpStatus.UNAUTHORIZED);
         }
 
         var newHashedPassword = passwordEncoder.encode(dto.newPassword());
@@ -89,7 +90,7 @@ public class UserService {
         var user = getUserByContext().orElseThrow();
 
         if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ErrorResponseException(HttpStatus.UNAUTHORIZED);
         }
 
         repository.delete(user);
