@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +33,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
+
+            .cors(cors ->
+                cors.configurationSource(req ->
+                    new CorsConfiguration().applyPermitDefaultValues()
+                )
+            )
+
             .csrf(CsrfConfigurer::disable)
 
             .authorizeHttpRequests(authorize -> {
