@@ -105,8 +105,10 @@ public class ProjectService {
         boolean isAbleToView;
 
         try {
+
             target = repository.getReferenceById(id);
             isAbleToView = this.ableToView(target, user);
+
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

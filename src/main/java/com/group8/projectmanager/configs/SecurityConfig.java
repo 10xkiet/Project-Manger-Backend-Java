@@ -17,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 @Configuration
@@ -69,7 +68,7 @@ public class SecurityConfig {
 
             .httpBasic(Customizer.withDefaults())
 
-            .oauth2ResourceServer(oauth2 -> {
+            .oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(source -> {
 
                     var username = source.getSubject();
@@ -78,8 +77,8 @@ public class SecurityConfig {
                     return new UsernamePasswordAuthenticationToken(
                         user, source, user.getAuthorities()
                     );
-                }));
-            })
+                }))
+            )
 
             .build();
     }

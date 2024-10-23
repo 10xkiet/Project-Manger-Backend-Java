@@ -20,5 +20,5 @@ jwts:
   public-key: "classpath:certs/public.pem"
   private-key: "classpath:certs/private.pem"
 
-  access-token-lifetime: 1800 # 30 minutes
+  access-token-lifetime: 1800     # 30 minutes
   refresh-token-lifetime: 2592000 # 30 days

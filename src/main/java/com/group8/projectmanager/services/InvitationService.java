@@ -82,8 +82,10 @@ public class InvitationService {
         var user = userService.getUserByContext().orElseThrow();
 
         try {
+
             target = invitationRepository.getReferenceById(id);
             userIsReceiver = userService.isEqual(user, target.getReceiver());
+
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -138,8 +140,10 @@ public class InvitationService {
         var user = userService.getUserByContext().orElseThrow();
 
         try {
+
             target = invitationRepository.getReferenceById(id);
             userIsSender = userService.isEqual(user, target.getSender());
+
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
