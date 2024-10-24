@@ -87,9 +87,7 @@ public class ProjectService {
 
     private boolean ableToView(@Nullable Project project, User user) {
 
-        if (project == null) {
-            return false;
-        }
+        if (project == null) return false;
 
         return userService.isEqual(user, project.getCreator())
             || userService.isEqual(user, project.getManager());
@@ -177,7 +175,8 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<ProjectDetailDto> listAllVisibleRoots(User user) {
         return repository
-            .findProjectsRootsWhereVisible(user.getId())
+            .findProjectsWhereVisible(user.getId())
+            // TODO: filter by query instead of java code
             .filter(project -> !ableToView(project.getParentProject(), user))
             .map(this::convertToDetailDto)
             .toList();
@@ -200,10 +199,7 @@ public class ProjectService {
         var user = userService.getUserByContext().orElseThrow();
 
         var parentProject = this.retrieveProjectAndCheck(parentId, user);
-        this.createProject(
-            user, parentProject,
-            dto.getName(), dto.getDescription()
-        );
+        createProject(user, parentProject, dto.getName(), dto.getDescription());
     }
 
     @Transactional

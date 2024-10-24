@@ -14,7 +14,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         SELECT p FROM Project p
         WHERE p.creator.id = ?1 OR p.manager.id = ?1
     """)
-    Stream<Project> findProjectsRootsWhereVisible(long userId);
+    Stream<Project> findProjectsWhereVisible(long userId);
 
     @Query("""
         SELECT count(p) FROM Project p

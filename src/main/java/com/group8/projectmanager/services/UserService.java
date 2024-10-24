@@ -56,8 +56,9 @@ public class UserService {
         return a.getId().equals(b.getId());
     }
 
-    public Optional<User>
-    getUserByAuthentication(@Nullable Authentication authentication) {
+    public Optional<User> getUserByAuthentication(
+        @Nullable Authentication authentication
+    ) {
 
         if (authentication == null) {
             return Optional.empty();
