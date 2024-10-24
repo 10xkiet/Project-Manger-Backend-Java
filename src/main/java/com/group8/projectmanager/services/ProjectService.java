@@ -65,7 +65,7 @@ public class ProjectService {
         modelMapper.map(project, result);
 
         computeCompleted(project);
-        var completed = repository.countByIdAndSubProjectsIsCompletedTrue(project.getId());
+        var completed = repository.countCompletedSubproject(project.getId());
         result.setCompletedCount(completed);
 
         result.setCreator(project.getCreator().getUsername());
@@ -85,7 +85,12 @@ public class ProjectService {
         return result;
     }
 
-    private boolean ableToView(Project project, User user) {
+    private boolean ableToView(@Nullable Project project, User user) {
+
+        if (project == null) {
+            return false;
+        }
+
         return userService.isEqual(user, project.getCreator())
             || userService.isEqual(user, project.getManager());
     }
@@ -170,23 +175,10 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectDetailDto> listRootProjects(User user) {
-
-        var userId = user.getId();
-
+    public List<ProjectDetailDto> listAllVisibleRoots(User user) {
         return repository
-            .findByParentProjectNullAndCreatorIdOrManagerId(userId, userId)
-            .map(this::convertToDetailDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProjectDetailDto> listAllProjects(User user) {
-
-        var userId = user.getId();
-
-        return repository
-            .findByCreatorIdOrManagerId(userId, userId)
+            .findProjectsRootsWhereVisible(user.getId())
+            .filter(project -> !ableToView(project.getParentProject(), user))
             .map(this::convertToDetailDto)
             .toList();
     }

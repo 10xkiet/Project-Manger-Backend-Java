@@ -28,13 +28,7 @@ public class ProjectController {
     @GetMapping
     public List<ProjectDetailDto> listRoots() {
         var user = userService.getUserByContext().orElseThrow();
-        return projectService.listRootProjects(user);
-    }
-
-    @GetMapping("/all")
-    public List<ProjectDetailDto> listAll() {
-        var user = userService.getUserByContext().orElseThrow();
-        return projectService.listAllProjects(user);
+        return projectService.listAllVisibleRoots(user);
     }
 
     @PostMapping
