@@ -45,6 +45,9 @@ public class InvitationService {
 
         var sender = userService.getUserByContext().orElseThrow();
         var targetProject = projectService.retrieveProjectAndCheck(projectId, sender);
+        if (targetProject.getManager() != null) {
+            throw new ErrorResponseException(HttpStatus.CONFLICT);
+        }
 
         var username = invitationDto.receiver();
         var invitedUser = userRepository.findByUsername(username)

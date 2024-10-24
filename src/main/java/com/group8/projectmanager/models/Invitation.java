@@ -2,7 +2,6 @@ package com.group8.projectmanager.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -30,7 +29,7 @@ public class Invitation {
     @Enumerated(EnumType.STRING)
     private InvitationStatus status;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Project project;
 
     @ManyToOne(optional = false)
