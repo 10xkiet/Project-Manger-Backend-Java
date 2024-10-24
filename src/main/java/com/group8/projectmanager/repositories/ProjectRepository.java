@@ -21,5 +21,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         INNER JOIN p.subProjects subProjects
         WHERE p.id = ?1 AND subProjects.isCompleted = true
     """)
-    long countCompletedSubproject(long userId);
+    long countCompletedSubproject(long projectId);
 }
