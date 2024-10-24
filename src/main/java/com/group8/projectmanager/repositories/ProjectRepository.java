@@ -12,14 +12,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("""
         SELECT p FROM Project p
-        WHERE p.creator.id = ?1 OR p.manager.id = ?1
+        LEFT JOIN p.parentProject parent
+        WHERE (parent IS NULL
+               OR (parent.creator.id <> ?1 AND parent.manager.id <> ?1))
+              AND (p.creator.id = ?1 OR p.manager.id = ?1)
     """)
-    Stream<Project> findProjectsWhereVisible(long userId);
+    Stream<Project> findProjectsWhoseParentHidden(long userId);
 
     @Query("""
-        SELECT count(p) FROM Project p
-        INNER JOIN p.subProjects subProjects
-        WHERE p.id = ?1 AND subProjects.isCompleted = true
+        SELECT COUNT(p) FROM Project p
+        INNER JOIN p.subProjects subs
+        WHERE p.id = ?1 AND subs.isCompleted = true
     """)
     long countCompletedSubproject(long projectId);
 }

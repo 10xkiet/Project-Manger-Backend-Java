@@ -175,9 +175,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<ProjectDetailDto> listAllVisibleRoots(User user) {
         return repository
-            .findProjectsWhereVisible(user.getId())
-            // TODO: filter by query instead of java code
-            .filter(project -> !ableToView(project.getParentProject(), user))
+            .findProjectsWhoseParentHidden(user.getId())
             .map(this::convertToDetailDto)
             .toList();
     }
