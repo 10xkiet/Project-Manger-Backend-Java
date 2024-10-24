@@ -18,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.ErrorResponseException;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.TreeSet;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +30,6 @@ public class ProjectService {
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final ProjectRepository repository;
-
-    private ProjectSimpleDto convertToDto(Project project) {
-        return modelMapper.map(project, ProjectSimpleDto.class);
-    }
 
     private boolean computeCompleted(Project project) {
 
@@ -85,12 +84,40 @@ public class ProjectService {
         return result;
     }
 
-    private boolean ableToView(@Nullable Project project, User user) {
-
-        if (project == null) return false;
-
+    private boolean isUserOrManager(Project project, User user) {
         return userService.isEqual(user, project.getCreator())
             || userService.isEqual(user, project.getManager());
+    }
+
+    private boolean ableToView(Project project, User user) {
+
+        while (project != null) {
+
+            if (isUserOrManager(project, user)) {
+                return true;
+            }
+
+            project = project.getParentProject();
+        }
+
+        return false;
+    }
+
+    @Nullable
+    private Project findHighestNode(Project proj, User user) {
+
+        Project result = null;
+
+        for (var ptr = proj; ptr != null; ptr = ptr.getParentProject()) {
+
+            if (!isUserOrManager(ptr, user)) {
+                break;
+            }
+
+            result = ptr;
+        }
+
+        return result;
     }
 
     private void convertToProject(Project project) {
@@ -173,9 +200,25 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectDetailDto> listAllVisibleRoots(User user) {
-        return repository
-            .findProjectsWhoseParentHidden(user.getId())
+    public List<ProjectDetailDto> listAllVisibleProjects(User user) {
+
+        var results = new TreeSet<>(Comparator.comparing(Project::getId));
+
+        repository
+            .findVisibleProjects(user.getId())
+            .map(proj -> this.findHighestNode(proj, user))
+            .filter(Objects::nonNull)
+            .forEach(results::add);
+
+        return results.stream()
+            .map(proj -> {
+
+                var subprojects = proj.getSubProjects();
+                subprojects.add(proj);
+
+                return subprojects;
+            })
+            .flatMap(List::stream)
             .map(this::convertToDetailDto)
             .toList();
     }
