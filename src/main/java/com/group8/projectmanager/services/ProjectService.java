@@ -2,7 +2,6 @@ package com.group8.projectmanager.services;
 
 import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.project.ProjectDetailDto;
-import com.group8.projectmanager.dtos.project.ProjectSimpleDto;
 import com.group8.projectmanager.dtos.project.ProjectUpdateDto;
 import com.group8.projectmanager.models.Project;
 import com.group8.projectmanager.models.ProjectType;
@@ -18,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.ErrorResponseException;
 
 import java.sql.Timestamp;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.TreeSet;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +28,8 @@ public class ProjectService {
     private final ProjectRepository repository;
 
     private boolean computeCompleted(Project project) {
+
+        System.out.println(project.getId());
 
         if (project.getType() == ProjectType.TASK) {
             return project.getIsCompleted();
@@ -174,7 +172,6 @@ public class ProjectService {
             .type(type)
             .parentProject(parentProject)
             .creator(creator)
-            .isCompleted(false)
             .createdOn(now);
 
         if (description != null) {
@@ -213,7 +210,7 @@ public class ProjectService {
         return results.stream()
             .map(proj -> {
 
-                var subprojects = proj.getSubProjects();
+                var subprojects = new ArrayList<>(proj.getSubProjects());
                 subprojects.add(proj);
 
                 return subprojects;
