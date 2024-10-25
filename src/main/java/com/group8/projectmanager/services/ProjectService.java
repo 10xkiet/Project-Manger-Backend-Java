@@ -104,6 +104,13 @@ public class ProjectService {
         return false;
     }
 
+    private void invalidateCompletedStatus(Project parent) {
+        for (var ptr = parent; ptr != null; ptr = ptr.getParentProject()) {
+            ptr.setIsCompleted(false);
+            repository.save(ptr);
+        }
+    }
+
     private Project findHighestNode(
         Map<Long, Project> disjointSet,
         Project proj, User user
@@ -160,9 +167,7 @@ public class ProjectService {
         } else if (parentProject.getType() == ProjectType.TASK) {
 
             parentProject.setType(ProjectType.PROJECT);
-            parentProject.setIsCompleted(false);
-
-            parentProject = repository.save(parentProject);
+            invalidateCompletedStatus(parentProject);
         }
 
         var now = new Timestamp(System.currentTimeMillis());
