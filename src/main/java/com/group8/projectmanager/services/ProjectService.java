@@ -29,8 +29,6 @@ public class ProjectService {
 
     private boolean computeCompleted(Project project) {
 
-        System.out.println(project.getId());
-
         if (project.getType() == ProjectType.TASK) {
             return project.getIsCompleted();
         }
