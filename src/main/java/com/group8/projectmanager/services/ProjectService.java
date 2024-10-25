@@ -99,21 +99,20 @@ public class ProjectService {
         return false;
     }
 
-    @Nullable
-    private Project findHighestNode(Project proj, User user) {
+    private Project findHighestNode(
+        Map<Long, Project> disjointSet,
+        Project proj, User user
+    ) {
+        return disjointSet.computeIfAbsent(proj.getId(), (id) -> {
 
-        Project result = null;
+            var parent = proj.getParentProject();
 
-        for (var ptr = proj; ptr != null; ptr = ptr.getParentProject()) {
-
-            if (!isUserOrManager(ptr, user)) {
-                break;
+            if (parent == null || !isUserOrManager(parent, user)) {
+                return proj;
             }
 
-            result = ptr;
-        }
-
-        return result;
+            return findHighestNode(disjointSet, parent, user);
+        });
     }
 
     private void convertToProject(Project project) {
@@ -199,10 +198,11 @@ public class ProjectService {
 
         var results = new TreeSet<>(Comparator.comparing(Project::getId));
 
+        Map<Long, Project> disjointSet = new TreeMap<>();
+
         repository
             .findVisibleProjects(user.getId())
-            .map(proj -> this.findHighestNode(proj, user))
-            .filter(Objects::nonNull)
+            .map(proj -> findHighestNode(disjointSet, proj, user))
             .forEach(results::add);
 
         return results.stream()
