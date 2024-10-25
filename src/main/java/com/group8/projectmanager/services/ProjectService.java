@@ -75,7 +75,12 @@ public class ProjectService {
             result.setParentProjectId(parent.getId());
         }
 
-        result.setSubProjectCount(project.getSubProjects().size());
+        var subProjects = project.getSubProjects();
+        if (subProjects != null) {
+            result.setSubProjectCount(subProjects.size());
+        } else {
+            result.setSubProjectCount(0);
+        }
 
         return result;
     }
@@ -115,14 +120,6 @@ public class ProjectService {
         });
     }
 
-    private void convertToProject(Project project) {
-
-        project.setType(ProjectType.PROJECT);
-        project.setIsCompleted(false);
-
-        repository.save(project);
-    }
-
     public Project retrieveProjectAndCheck(long id, User user) {
 
         Project target;
@@ -157,23 +154,27 @@ public class ProjectService {
         ProjectType type = ProjectType.TASK;
 
         if (parentProject == null) {
+
             type = ProjectType.ROOT;
+
         } else if (parentProject.getType() == ProjectType.TASK) {
-            convertToProject(parentProject);
+
+            parentProject.setType(ProjectType.PROJECT);
+            parentProject.setIsCompleted(false);
+
+            parentProject = repository.save(parentProject);
         }
 
         var now = new Timestamp(System.currentTimeMillis());
 
         var builder = Project.builder()
-            .name(name)
             .type(type)
+            .name(name)
+            .description(description)
             .parentProject(parentProject)
+            .isCompleted(false)
             .creator(creator)
             .createdOn(now);
-
-        if (description != null) {
-            builder.description(description);
-        }
 
         repository.save(builder.build());
     }
