@@ -157,9 +157,9 @@ public class ProjectService {
     }
 
     public void createProject(
-        User creator, @Nullable Project parentProject,
-        String name, @Nullable String description,
-        @Nullable Timestamp startedOn
+        User creator,
+        @Nullable Project parentProject,
+        ProjectCreateDto dto
     ) {
 
         ProjectType type = ProjectType.TASK;
@@ -178,10 +178,11 @@ public class ProjectService {
 
         var builder = Project.builder()
             .type(type)
-            .name(name)
-            .description(description)
+            .name(dto.getName())
+            .description(dto.getDescription())
             .parentProject(parentProject)
-            .startedOn(startedOn)
+            .startedOn(dto.getStartedOn())
+            .deadline(dto.getDeadline())
             .isCompleted(false)
             .creator(creator)
             .createdOn(now);
@@ -246,11 +247,8 @@ public class ProjectService {
 
         var user = userService.getUserByContext().orElseThrow();
 
-        var parentProject = this.retrieveProjectAndCheck(parentId, user);
-        createProject(
-            user, parentProject,
-            dto.getName(), dto.getDescription(), dto.getStartedOn()
-        );
+        var parentProject = retrieveProjectAndCheck(parentId, user);
+        createProject(user, parentProject, dto);
     }
 
     @Transactional

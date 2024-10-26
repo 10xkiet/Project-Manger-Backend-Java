@@ -3,6 +3,7 @@ package com.group8.projectmanager.controllers;
 import com.group8.projectmanager.dtos.DeleteUserDto;
 import com.group8.projectmanager.dtos.PasswordChangeDto;
 import com.group8.projectmanager.dtos.UserDto;
+import com.group8.projectmanager.dtos.project.ProjectCreateDto;
 import com.group8.projectmanager.dtos.token.TokenObtainDto;
 import com.group8.projectmanager.dtos.token.TokenRefreshRequestDto;
 import com.group8.projectmanager.dtos.token.TokenRefreshResponseDto;
@@ -31,11 +32,14 @@ public class UserController {
 
         var user = userService.createUser(dto);
 
-        projectService.createProject(
-            user, null,
-            "Root project for " + user.getUsername(),
-            null, null
-        );
+        var createDto = ProjectCreateDto.builder()
+            .name("Root project for " + user.getUsername())
+            .description(null)
+            .startedOn(null)
+            .deadline(null)
+            .build();
+
+        projectService.createProject(user, null, createDto);
     }
 
     @PostMapping("/token/")
