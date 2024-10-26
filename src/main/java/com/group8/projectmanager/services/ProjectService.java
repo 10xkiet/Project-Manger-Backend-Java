@@ -104,7 +104,7 @@ public class ProjectService {
         return false;
     }
 
-    private void invalidateCompletedStatus(Project parent) {
+    private void invalidateCompletedStatus(@Nullable Project parent) {
         for (var ptr = parent; ptr != null; ptr = ptr.getParentProject()) {
             ptr.setIsCompleted(false);
             repository.save(ptr);
@@ -253,7 +253,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void markCompleted(long id) {
+    public void rotateCompleted(long id) {
 
         var target = retrieveProjectAndCheck(id);
 
@@ -265,7 +265,16 @@ public class ProjectService {
             throw e;
         }
 
-        target.setIsCompleted(true);
+        var prevStatus = target.getIsCompleted();
+        if (prevStatus == null) {
+            return;
+        }
+
+        if (prevStatus) {
+            invalidateCompletedStatus(target.getParentProject());
+        }
+
+        target.setIsCompleted(!prevStatus);
         repository.save(target);
     }
 

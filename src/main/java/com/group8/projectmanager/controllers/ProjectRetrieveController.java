@@ -54,8 +54,8 @@ public class ProjectRetrieveController {
 
     @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void markCompleted(@PathVariable long id) {
-        projectService.markCompleted(id);
+    public void rotateCompleted(@PathVariable long id) {
+        projectService.rotateCompleted(id);
     }
 
     @DeleteMapping
