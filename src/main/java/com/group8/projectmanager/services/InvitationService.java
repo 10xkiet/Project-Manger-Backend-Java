@@ -130,9 +130,11 @@ public class InvitationService {
         var target = invitationRepository.getReferenceById(id);
 
         var user = userService.getUserByContext().orElseThrow();
-        var userIsSender = userService.isEqual(user, target.getSender());
 
-        if (!userIsSender) {
+        var userIsSender = userService.isEqual(user, target.getSender());
+        var userIsReceiver = userService.isEqual(user, target.getReceiver());
+
+        if (!(userIsSender || userIsReceiver)) {
             throw new ErrorResponseException(HttpStatus.FORBIDDEN);
         }
 
