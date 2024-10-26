@@ -57,10 +57,11 @@ public class ProjectService {
 
         var result = new ProjectDetailDto();
 
-        modelMapper.map(project, result);
-
         computeCompleted(project);
         var completed = repository.countCompletedSubproject(project.getId());
+
+        modelMapper.map(project, result);
+
         result.setCompletedCount(completed);
 
         result.setCreator(project.getCreator().getUsername());

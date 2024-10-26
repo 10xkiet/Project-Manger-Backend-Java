@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +17,8 @@ public class ProjectDetailDto {
 
     private String creator;
     private String manager;
+
+    private boolean isCompleted;
 
     private Long parentProjectId;
     private ProjectType type;
