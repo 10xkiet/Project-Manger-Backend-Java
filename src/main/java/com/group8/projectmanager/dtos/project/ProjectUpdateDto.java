@@ -12,5 +12,6 @@ public final class ProjectUpdateDto {
     private String name;
     private String description;
 
+    private Timestamp startedOn;
     private Timestamp deadline;
 }

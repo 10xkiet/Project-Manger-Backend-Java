@@ -37,7 +37,7 @@ public class ProjectController {
         var user = userService.getUserByContext().orElseThrow();
         projectService.createProject(
             user, null,
-            dto.getName(), dto.getDescription()
+            dto.getName(), dto.getDescription(), dto.getStartedOn()
         );
     }
 }

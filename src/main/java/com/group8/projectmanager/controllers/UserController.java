@@ -34,7 +34,7 @@ public class UserController {
         projectService.createProject(
             user, null,
             "Root project for " + user.getUsername(),
-            null
+            null, null
         );
     }
 

@@ -3,6 +3,8 @@ package com.group8.projectmanager.dtos.project;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 @Data
 public final class ProjectCreateDto {
 
@@ -10,4 +12,6 @@ public final class ProjectCreateDto {
     private String name;
 
     private String description;
+
+    private Timestamp startedOn;
 }

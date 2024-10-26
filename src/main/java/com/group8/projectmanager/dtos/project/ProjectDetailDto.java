@@ -26,5 +26,6 @@ public class ProjectDetailDto {
     private long subProjectCount;
 
     private Timestamp createdOn;
+    private Timestamp startedOn;
     private Timestamp deadline;
 }

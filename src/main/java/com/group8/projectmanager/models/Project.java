@@ -35,6 +35,8 @@ public class Project {
     @Column(nullable = false)
     private Timestamp createdOn;
 
+    private Timestamp startedOn;
+
     private Timestamp deadline;
 
     @ManyToOne(optional = false)

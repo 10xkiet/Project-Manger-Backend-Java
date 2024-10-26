@@ -157,7 +157,8 @@ public class ProjectService {
 
     public void createProject(
         User creator, @Nullable Project parentProject,
-        String name, @Nullable String description
+        String name, @Nullable String description,
+        @Nullable Timestamp startedOn
     ) {
 
         ProjectType type = ProjectType.TASK;
@@ -179,6 +180,7 @@ public class ProjectService {
             .name(name)
             .description(description)
             .parentProject(parentProject)
+            .startedOn(startedOn)
             .isCompleted(false)
             .creator(creator)
             .createdOn(now);
@@ -244,7 +246,10 @@ public class ProjectService {
         var user = userService.getUserByContext().orElseThrow();
 
         var parentProject = this.retrieveProjectAndCheck(parentId, user);
-        createProject(user, parentProject, dto.getName(), dto.getDescription());
+        createProject(
+            user, parentProject,
+            dto.getName(), dto.getDescription(), dto.getStartedOn()
+        );
     }
 
     @Transactional
