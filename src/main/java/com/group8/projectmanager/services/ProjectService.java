@@ -86,7 +86,7 @@ public class ProjectService {
         return result;
     }
 
-    private boolean isUserOrManager(Project project, User user) {
+    private boolean isCreatorOrManager(Project project, User user) {
         return userService.isEqual(user, project.getCreator())
             || userService.isEqual(user, project.getManager());
     }
@@ -95,7 +95,7 @@ public class ProjectService {
 
         while (project != null) {
 
-            if (isUserOrManager(project, user)) {
+            if (isCreatorOrManager(project, user)) {
                 return true;
             }
 
@@ -117,16 +117,21 @@ public class ProjectService {
         Map<Long, Project> disjointSet,
         @Nullable Project proj, User user
     ) {
-        if (proj == null || !isUserOrManager(proj, user)) {
-            return null;
-        }
+
+        if (proj == null) return null;
 
         return disjointSet.computeIfAbsent(proj.getId(), (id) -> {
 
             var parent = proj.getParentProject();
-            var result = findHighestNode(disjointSet, parent, user);
+            var highestNode = findHighestNode(disjointSet, parent, user);
 
-            return result != null ? result : proj;
+            if (highestNode != null) {
+                return highestNode;
+            } else if (isCreatorOrManager(proj, user)) {
+                return proj;
+            } else {
+                return null;
+            }
         });
     }
 
@@ -138,7 +143,7 @@ public class ProjectService {
         try {
 
             target = repository.getReferenceById(id);
-            isAbleToView = this.ableToView(target, user);
+            isAbleToView = ableToView(target, user);
 
         } catch (EntityNotFoundException e) {
             throw new ErrorResponseException(HttpStatus.NOT_FOUND);
